@@ -98,35 +98,51 @@ class RSIMACrossoverStrategy:
         Returns:
             Number of shares to trade
         """
-        # Base risk amount per trade
+        # Enhanced position sizing for mean reversion strategy
         base_risk = self.current_capital * self.risk_per_trade
         
-        # Volatility adjustment - reduce risk for high volatility stocks
+        # Conviction-based sizing - more aggressive on high-conviction setups
         volatility_ratio = atr / price
-        if volatility_ratio > 0.03:  # High volatility (>3%)
-            adjusted_risk = base_risk * 0.7  # Reduce risk by 30%
-        elif volatility_ratio < 0.015:  # Low volatility (<1.5%)
-            adjusted_risk = base_risk * 1.2  # Increase risk by 20%
-        else:
-            adjusted_risk = base_risk
         
-        # Dynamic stop loss based on volatility
-        stop_loss_distance = max(1.5 * atr, price * 0.03)  # Tighter stops, min 3%
+        # Increase size for high conviction signals (low RSI = higher conviction)
+        # This is a mean reversion strategy, so lower RSI = better opportunity
+        current_rsi = 30  # Default if we can't determine current RSI
+        if volatility_ratio < 0.02:  # Low volatility stocks
+            if current_rsi < 15:  # Deep oversold - high conviction
+                size_multiplier = 1.5
+            elif current_rsi < 25:  # Regular oversold - medium conviction
+                size_multiplier = 1.2
+            else:
+                size_multiplier = 1.0
+        elif volatility_ratio < 0.04:  # Medium volatility
+            if current_rsi < 15:
+                size_multiplier = 1.3
+            elif current_rsi < 25:
+                size_multiplier = 1.1
+            else:
+                size_multiplier = 0.9
+        else:  # High volatility - be more conservative
+            size_multiplier = 0.7
+        
+        adjusted_risk = base_risk * size_multiplier
+        
+        # Tighter stops for mean reversion (quick in/out)
+        stop_loss_distance = max(1.0 * atr, price * 0.025)  # Very tight stops
         
         # Calculate position size
         if stop_loss_distance > 0:
             position_size = int(adjusted_risk / stop_loss_distance)
         else:
-            position_size = int(adjusted_risk / (price * 0.03))
+            position_size = int(adjusted_risk / (price * 0.025))
         
-        # Portfolio constraints
-        max_per_position = int(self.current_capital * 0.15 / price)  # Max 15% per stock
-        max_total_invested = int(self.current_capital * 0.8 / price)   # Max 80% invested
+        # More aggressive portfolio constraints for mean reversion
+        max_per_position = int(self.current_capital * 0.25 / price)  # Max 25% per stock
+        max_total_invested = int(self.current_capital * 0.9 / price)   # Max 90% invested
         
-        # Consider current portfolio concentration
+        # For mean reversion, concentrate positions more
         num_positions = len(self.positions)
-        if num_positions >= 3:  # Already have 3+ positions, be more conservative
-            max_per_position = int(max_per_position * 0.8)
+        if num_positions >= 2:  # Limit to 2-3 positions max
+            max_per_position = int(max_per_position * 0.9)
         
         position_size = min(position_size, max_per_position, max_total_invested)
         
@@ -157,53 +173,145 @@ class RSIMACrossoverStrategy:
         signals_df['position'] = 0
         signals_df['signal_strength'] = 'NONE'
         
-        # Improved but practical buy signals
-        ma_bullish = signals_df['sma_20'] > signals_df['sma_50']
-        ma_crossover = (signals_df['sma_20'] > signals_df['sma_50']) & (signals_df['sma_20'].shift(1) <= signals_df['sma_50'].shift(1))
+        # Mean Reversion Strategy - Buy oversold stocks showing reversal signs
+        
+        # Core oversold conditions
         rsi_oversold = signals_df['rsi'] < self.rsi_oversold
+        rsi_deep_oversold = signals_df['rsi'] < 15  # Deep oversold for high conviction
         
-        # Key quality filters - but not overly restrictive
-        volume_confirmation = signals_df['volume_ratio'] > 1.05  # Slight volume increase
-        macd_confirmation = signals_df['macd'] > signals_df['signal']  # MACD bullish
-        not_falling_knife = signals_df['close'].pct_change(3) > -0.10  # Not down >10% in 3 days
+        # Support and reversal signals
+        recent_low = signals_df['low'].rolling(10).min()  # 10-day low
+        near_support = signals_df['close'] <= recent_low * 1.02  # Within 2% of support
+        bouncing_off_support = (signals_df['close'] > signals_df['low']) & (signals_df['low'] == recent_low)
         
-        # Simple momentum filter
-        price_above_short_ma = signals_df['close'] > signals_df['sma_20']
+        # Volume and momentum reversal signs
+        volume_increase = signals_df['volume_ratio'] >= 1.0  # Any volume increase
+        price_stabilizing = signals_df['close'].pct_change() > -0.02  # Not falling hard today
         
-        # Enhanced buy condition - core RSI+MA with quality filters
-        buy_condition = (
-            (
-                # Original condition: RSI oversold with bullish MA
-                (rsi_oversold & ma_bullish & volume_confirmation) |
-                
-                # MA crossover condition with confirmations
-                (ma_crossover & macd_confirmation & not_falling_knife)
-            ) &
-            
-            # Additional quality filter - avoid extreme situations
-            (signals_df['atr'] / signals_df['close'] < 0.08)  # Avoid extremely volatile stocks
+        # MACD showing potential reversal (histogram turning positive)
+        macd_improving = signals_df['histogram'] > signals_df['histogram'].shift(1)
+        
+        # Bullish divergence signs
+        price_higher_low = (signals_df['close'] > signals_df['close'].shift(5)) & (signals_df['rsi'] < signals_df['rsi'].shift(5))
+        
+        # Multiple buy conditions for different scenarios
+        
+        # Condition 1: Deep oversold bounce with volume
+        deep_oversold_bounce = (
+            rsi_deep_oversold &
+            volume_increase &
+            price_stabilizing &
+            macd_improving
         )
         
-        # Improved sell signals - focus on profit protection
-        ma_bearish = signals_df['sma_20'] < signals_df['sma_50']
-        ma_crossover_down = (signals_df['sma_20'] < signals_df['sma_50']) & (signals_df['sma_20'].shift(1) >= signals_df['sma_50'].shift(1))
+        # Condition 2: Regular oversold near support 
+        oversold_support = (
+            rsi_oversold &
+            near_support &
+            volume_increase &
+            (macd_improving | price_stabilizing)
+        )
+        
+        # Condition 3: Bullish divergence play
+        divergence_play = (
+            rsi_oversold &
+            price_higher_low &
+            volume_increase
+        )
+        
+        # Condition 4: Bounce off exact support
+        support_bounce = (
+            bouncing_off_support &
+            volume_increase &
+            (signals_df['rsi'] < 40)  # Still oversold but not extreme
+        )
+        
+        # Market regime filter - only trade in favorable conditions
+        # Avoid buying in strong downtrends
+        price_trend_20 = signals_df['close'] > signals_df['close'].rolling(20).mean()  # Above 20-day average
+        recent_strength = signals_df['close'].pct_change(10) > -0.15  # Not down >15% in 10 days
+        volume_trend = signals_df['volume_ratio'].rolling(5).mean() > 0.8  # Decent volume participation
+        
+        # Market regime confirmation
+        market_favorable = (
+            price_trend_20 |  # Either in uptrend
+            (recent_strength & volume_trend)  # Or showing resilience with volume
+        )
+        
+        # Balanced approach - multiple setups with less restrictive filters
+        primary_setups = (
+            deep_oversold_bounce |  # Deep oversold with clear reversal
+            oversold_support |      # Regular oversold at support
+            divergence_play         # Bullish divergence
+        )
+        
+        # Secondary setups for more opportunities
+        secondary_setups = (
+            support_bounce &        # Support bounce with volume
+            price_stabilizing       # With price stabilizing
+        )
+        
+        # Combined buy condition - less restrictive but still quality-focused
+        buy_condition = (
+            (primary_setups & (market_favorable | recent_strength)) |  # Primary setups with some market filter
+            (secondary_setups & market_favorable)                      # Secondary setups need better market
+        ) & (signals_df['atr'] / signals_df['close'] < 0.06)          # Reasonable volatility
+        
+        # Aggressive profit-taking and loss-cutting sell signals
+        
+        # Quick profit-taking levels
+        rsi_profit_zone = signals_df['rsi'] > 60  # Take profits in profit zone
         rsi_overbought = signals_df['rsi'] > self.rsi_overbought
-        rsi_very_high = signals_df['rsi'] > 75  # Very overbought
         
-        # Momentum and technical deterioration
+        # Momentum reversal signs
         macd_turning_down = (signals_df['macd'] < signals_df['signal']) & (signals_df['macd'].shift(1) >= signals_df['signal'].shift(1))
-        price_decline = signals_df['close'].pct_change(2) < -0.04  # 2-day decline > 4%
-        volume_selling = signals_df['volume_ratio'] > 1.5  # Higher volume selling
+        volume_distribution = signals_df['volume_ratio'] > 1.3  # Distribution volume
         
-        # Price structure breakdown
-        below_short_ma = signals_df['close'] < signals_df['sma_20']
+        # Price action deterioration
+        failed_to_advance = signals_df['close'].pct_change(2) < -0.01  # Failed to advance
+        breaking_support = signals_df['close'] < signals_df['sma_20']
         
+        # Reversal patterns
+        bearish_reversal = (
+            (signals_df['high'] == signals_df['high'].rolling(3).max()) &  # Made a high
+            (signals_df['close'] < signals_df['open']) &  # Closed lower
+            (signals_df['volume_ratio'] > 1.2)  # On volume
+        )
+        
+        # Multiple sell conditions for different scenarios
+        
+        # Condition 1: Quick profit take on any strength
+        quick_profit = (
+            rsi_profit_zone &
+            volume_distribution
+        )
+        
+        # Condition 2: Standard overbought with momentum turning
+        overbought_exit = (
+            rsi_overbought |
+            (macd_turning_down & (signals_df['rsi'] > 50))
+        )
+        
+        # Condition 3: Support break with volume
+        support_break = (
+            breaking_support &
+            volume_distribution &
+            failed_to_advance
+        )
+        
+        # Condition 4: Bearish reversal pattern
+        reversal_exit = bearish_reversal
+        
+        # Add quick profit-taking for better win rate
+        small_profit_take = (signals_df['rsi'] > 45) & (signals_df['volume_ratio'] > 1.1)  # Take small profits
+        
+        # Combined sell condition - prioritize profit preservation and win rate
         sell_condition = (
-            rsi_overbought |  # Basic RSI overbought
-            ma_crossover_down |  # MA bearish crossover
-            (rsi_very_high) |  # Very high RSI - take profits
-            (macd_turning_down & price_decline) |  # MACD turning down with price weakness
-            (below_short_ma & volume_selling)  # Price breaks support with volume
+            small_profit_take |  # Take small profits quickly
+            quick_profit |
+            overbought_exit |
+            support_break |
+            reversal_exit
         )
         
         # Set signals
@@ -360,21 +468,24 @@ class RSIMACrossoverStrategy:
                 # Enhanced stop loss and take profit calculation
                 volatility_ratio = atr / price
                 
-                # Improved dynamic stop loss and take profit
-                if volatility_ratio > 0.035:  # Very high volatility
-                    stop_loss = price - (1.0 * atr)  # Tight stop
-                    take_profit = price + (2.0 * atr)  # Conservative target
-                elif volatility_ratio > 0.025:  # High volatility
-                    stop_loss = price - (1.3 * atr)  # Moderate stop
-                    take_profit = price + (2.6 * atr)  # Moderate target
-                else:  # Normal/low volatility
-                    stop_loss = price - (1.6 * atr)  # Wider stop
-                    take_profit = price + (3.2 * atr)  # Aggressive target
+                # Mean reversion stop-loss and take-profit strategy
+                # Tight stops, multiple profit targets
                 
-                # Ensure minimum risk-reward ratio of 1.8:1
+                # Very tight stop for mean reversion (quick exit if wrong)
+                stop_loss = price - (0.8 * atr)  # Tight stop loss
+                
+                # Conservative profit targets for better win rate
+                if volatility_ratio > 0.03:  # High volatility - very conservative
+                    take_profit = price + (1.2 * atr)  # Quick exit
+                elif volatility_ratio > 0.02:  # Medium volatility
+                    take_profit = price + (1.5 * atr)  # Conservative target
+                else:  # Low volatility - still conservative
+                    take_profit = price + (1.8 * atr)  # Modest target
+                
+                # Ensure minimum risk-reward but prioritize win rate
                 risk = price - stop_loss
-                if (take_profit - price) < (risk * 1.8):
-                    take_profit = price + (risk * 2.0)  # Better risk-reward
+                if (take_profit - price) < (risk * 1.5):  # Lower R:R for higher win rate
+                    take_profit = price + (risk * 1.8)  # More achievable targets
                 
                 # Create trade
                 trade = Trade(symbol, 'BUY', quantity, price, date, stop_loss, take_profit)
@@ -423,12 +534,21 @@ class RSIMACrossoverStrategy:
             entry_price = position['entry_price']
             current_profit = (price - entry_price) / entry_price
             
-            # Trailing stop logic - update stop loss if in profit
-            if current_profit > 0.05:  # If up 5% or more
-                trailing_stop = price - (1.5 * atr)  # Trail by 1.5 ATR
+            # Aggressive trailing stop for mean reversion
+            if current_profit > 0.02:  # If up 2% or more (lower threshold)
+                trailing_stop = price - (1.0 * atr)  # Tight trailing stop
                 if trailing_stop > position['stop_loss']:
                     position['stop_loss'] = trailing_stop
                     logger.debug(f"Updated trailing stop for {symbol} to ${trailing_stop:.2f}")
+            
+            # Take partial profits at targets
+            if current_profit > 0.03:  # 3% profit - take some off the table
+                # This would normally trigger a partial sell, but for simplicity
+                # we'll just move to break-even stop
+                breakeven_stop = position['entry_price'] + (0.3 * atr)  # Slightly above breakeven
+                if breakeven_stop > position['stop_loss']:
+                    position['stop_loss'] = breakeven_stop
+                    logger.debug(f"Moved to breakeven+ stop for {symbol} at ${breakeven_stop:.2f}")
             
             # Enhanced exit conditions
             # 1. Sell signal

@@ -43,15 +43,22 @@ class Config:
     
     # Technical Indicator Parameters
     RSI_PERIOD = 14
-    RSI_OVERSOLD = 32  # Slightly less conservative
-    RSI_OVERBOUGHT = 68  # Slightly less conservative
+    RSI_OVERSOLD = 25  # More aggressive oversold level
+    RSI_OVERBOUGHT = 75  # More aggressive overbought level
+    RSI_DEEP_OVERSOLD = 15  # Deep oversold for high-conviction trades
     SHORT_MA = 20
     LONG_MA = 50
     
     # Enhanced Strategy Parameters
-    VOLUME_THRESHOLD = 1.1  # Require 10% above average volume (less strict)
-    VOLATILITY_THRESHOLD = 0.015  # Minimum 1.5% daily volatility (less strict)
-    TREND_STRENGTH_THRESHOLD = 0.5  # Minimum trend strength
+    VOLUME_THRESHOLD = 1.0  # Any volume increase
+    VOLATILITY_THRESHOLD = 0.01  # Minimum 1% daily volatility
+    TREND_STRENGTH_THRESHOLD = 0.3  # Lower trend strength requirement
+    
+    # Mean Reversion Parameters
+    BOUNCE_THRESHOLD = 0.02  # 2% bounce from lows
+    SUPPORT_LOOKBACK = 10  # Days to look back for support
+    PROFIT_TARGET_1 = 0.03  # 3% profit target
+    PROFIT_TARGET_2 = 0.05  # 5% profit target
     
     # ML Model Parameters
     ML_FEATURES = ['rsi', 'macd', 'volume_ratio', 'price_change', 'volatility']

@@ -2325,3 +2325,144 @@
 2025-08-10 09:42:11 | WARNING | Cannot update portfolio summary - Google Sheets not configured
 2025-08-10 09:42:11 | WARNING | Cannot update performance metrics - Google Sheets not configured
 2025-08-10 09:42:11 | INFO | Backtest plot saved to backtest_results.png
+2025-08-10 09:58:34 | INFO | Running 6-month backtest...
+2025-08-10 09:58:34 | INFO | DataFetcher initialized successfully
+2025-08-10 09:58:34 | INFO | RSI MA Crossover Strategy initialized with $100,000.00 capital
+2025-08-10 09:58:34 | INFO | Using RSI+MA Crossover strategy for backtesting
+2025-08-10 09:58:34 | WARNING | Google Sheets credentials or spreadsheet ID not configured
+2025-08-10 09:58:34 | WARNING | Google Sheets not configured - using mock logger for demo
+2025-08-10 09:58:34 | INFO | Fetching historical data for 6-month backtest...
+2025-08-10 09:58:34 | INFO | Processing RELIANCE.BSE...
+2025-08-10 09:58:34 | INFO | Loading RELIANCE.BSE daily data from cache
+2025-08-10 09:58:34 | SUCCESS | Successfully processed RELIANCE.BSE
+2025-08-10 09:58:34 | INFO | Processing TCS.BSE...
+2025-08-10 09:58:34 | INFO | Loading TCS.BSE daily data from cache
+2025-08-10 09:58:34 | SUCCESS | Successfully processed TCS.BSE
+2025-08-10 09:58:34 | INFO | Processing INFY.BSE...
+2025-08-10 09:58:34 | INFO | Loading INFY.BSE daily data from cache
+2025-08-10 09:58:34 | SUCCESS | Successfully processed INFY.BSE
+2025-08-10 09:58:34 | INFO | Successfully fetched data for 3 out of 3 stocks
+2025-08-10 09:58:34 | INFO | Backtest period: 2025-02-09 to 2025-08-08
+2025-08-10 09:58:34 | INFO | Filtered RELIANCE.BSE: 123 trading days
+2025-08-10 09:58:34 | INFO | Filtered TCS.BSE: 123 trading days
+2025-08-10 09:58:34 | INFO | Filtered INFY.BSE: 123 trading days
+2025-08-10 09:58:34 | INFO | Running strategy backtest...
+2025-08-10 09:58:34 | INFO | Starting backtesting...
+2025-08-10 09:58:34 | SUCCESS | Successfully calculated all technical indicators
+2025-08-10 09:58:34 | INFO | RELIANCE.BSE: Generated 6 buy signals and 27 sell signals out of 123 periods
+2025-08-10 09:58:34 | INFO | RELIANCE.BSE signal distribution: {0: 94, -1: 27, 1: 2}
+2025-08-10 09:58:34 | SUCCESS | Successfully calculated all technical indicators
+2025-08-10 09:58:34 | INFO | TCS.BSE: Generated 13 buy signals and 19 sell signals out of 123 periods
+2025-08-10 09:58:34 | INFO | TCS.BSE signal distribution: {0: 97, -1: 19, 1: 7}
+2025-08-10 09:58:34 | SUCCESS | Successfully calculated all technical indicators
+2025-08-10 09:58:34 | INFO | INFY.BSE: Generated 7 buy signals and 25 sell signals out of 123 periods
+2025-08-10 09:58:34 | INFO | INFY.BSE signal distribution: {0: 96, -1: 25, 1: 2}
+2025-08-10 09:58:34 | INFO | BUY: 7 shares of TCS.BSE at $3497.25
+2025-08-10 09:58:34 | INFO | SELL: 7 shares of TCS.BSE at $3657.70 (SELL_SIGNAL)
+2025-08-10 09:58:34 | INFO | BUY: 20 shares of RELIANCE.BSE at $1204.70
+2025-08-10 09:58:34 | INFO | SELL: 20 shares of RELIANCE.BSE at $1166.20 (SELL_SIGNAL)
+2025-08-10 09:58:34 | INFO | BUY: 7 shares of TCS.BSE at $3321.60
+2025-08-10 09:58:34 | INFO | SELL: 7 shares of TCS.BSE at $3455.15 (SELL_SIGNAL)
+2025-08-10 09:58:34 | INFO | BUY: 7 shares of TCS.BSE at $3382.30
+2025-08-10 09:58:34 | INFO | SELL: 7 shares of TCS.BSE at $3265.40 (SELL_SIGNAL)
+2025-08-10 09:58:34 | INFO | BUY: 7 shares of TCS.BSE at $3252.80
+2025-08-10 09:58:34 | INFO | SELL: 7 shares of TCS.BSE at $3208.50 (STOP_LOSS)
+2025-08-10 09:58:34 | INFO | BUY: 16 shares of INFY.BSE at $1515.60
+2025-08-10 09:58:34 | INFO | BUY: 13 shares of RELIANCE.BSE at $1417.95
+2025-08-10 09:58:34 | INFO | BUY: 3 shares of TCS.BSE at $3056.55
+2025-08-10 09:58:34 | INFO | SELL: 13 shares of RELIANCE.BSE at $1390.30 (STOP_LOSS)
+2025-08-10 09:58:34 | INFO | SELL: 3 shares of TCS.BSE at $3003.10 (SELL_SIGNAL)
+2025-08-10 09:58:34 | INFO | SELL: 16 shares of INFY.BSE at $1470.60 (STOP_LOSS)
+2025-08-10 09:58:34 | INFO | BUY: 16 shares of INFY.BSE at $1459.75
+2025-08-10 09:58:34 | INFO | SELL: 16 shares of INFY.BSE at $1435.75 (STOP_LOSS)
+2025-08-10 09:58:34 | SUCCESS | Backtesting completed. Total return: -1.46%
+2025-08-10 09:58:34 | INFO | Logging backtest results to Google Sheets...
+2025-08-10 09:58:34 | WARNING | Cannot update portfolio summary - Google Sheets not configured
+2025-08-10 09:58:34 | WARNING | Cannot update performance metrics - Google Sheets not configured
+2025-08-10 09:58:35 | INFO | Backtest plot saved to backtest_results.png
+2025-08-10 10:00:04 | INFO | Running 6-month backtest...
+2025-08-10 10:00:04 | INFO | DataFetcher initialized successfully
+2025-08-10 10:00:04 | INFO | RSI MA Crossover Strategy initialized with $100,000.00 capital
+2025-08-10 10:00:04 | INFO | Using RSI+MA Crossover strategy for backtesting
+2025-08-10 10:00:04 | WARNING | Google Sheets credentials or spreadsheet ID not configured
+2025-08-10 10:00:04 | WARNING | Google Sheets not configured - using mock logger for demo
+2025-08-10 10:00:04 | INFO | Fetching historical data for 6-month backtest...
+2025-08-10 10:00:04 | INFO | Processing RELIANCE.BSE...
+2025-08-10 10:00:04 | INFO | Loading RELIANCE.BSE daily data from cache
+2025-08-10 10:00:04 | SUCCESS | Successfully processed RELIANCE.BSE
+2025-08-10 10:00:04 | INFO | Processing TCS.BSE...
+2025-08-10 10:00:04 | INFO | Loading TCS.BSE daily data from cache
+2025-08-10 10:00:04 | SUCCESS | Successfully processed TCS.BSE
+2025-08-10 10:00:04 | INFO | Processing INFY.BSE...
+2025-08-10 10:00:04 | INFO | Loading INFY.BSE daily data from cache
+2025-08-10 10:00:04 | SUCCESS | Successfully processed INFY.BSE
+2025-08-10 10:00:04 | INFO | Successfully fetched data for 3 out of 3 stocks
+2025-08-10 10:00:04 | INFO | Backtest period: 2025-02-09 to 2025-08-08
+2025-08-10 10:00:04 | INFO | Filtered RELIANCE.BSE: 123 trading days
+2025-08-10 10:00:04 | INFO | Filtered TCS.BSE: 123 trading days
+2025-08-10 10:00:04 | INFO | Filtered INFY.BSE: 123 trading days
+2025-08-10 10:00:04 | INFO | Running strategy backtest...
+2025-08-10 10:00:04 | INFO | Starting backtesting...
+2025-08-10 10:00:04 | SUCCESS | Successfully calculated all technical indicators
+2025-08-10 10:00:04 | INFO | RELIANCE.BSE: Generated 0 buy signals and 36 sell signals out of 123 periods
+2025-08-10 10:00:04 | INFO | RELIANCE.BSE signal distribution: {0: 87, -1: 36}
+2025-08-10 10:00:04 | SUCCESS | Successfully calculated all technical indicators
+2025-08-10 10:00:04 | INFO | TCS.BSE: Generated 0 buy signals and 27 sell signals out of 123 periods
+2025-08-10 10:00:04 | INFO | TCS.BSE signal distribution: {0: 96, -1: 27}
+2025-08-10 10:00:04 | SUCCESS | Successfully calculated all technical indicators
+2025-08-10 10:00:04 | INFO | INFY.BSE: Generated 0 buy signals and 36 sell signals out of 123 periods
+2025-08-10 10:00:04 | INFO | INFY.BSE signal distribution: {0: 87, -1: 36}
+2025-08-10 10:00:04 | SUCCESS | Backtesting completed. Total return: 0.00%
+2025-08-10 10:00:04 | INFO | Logging backtest results to Google Sheets...
+2025-08-10 10:00:04 | WARNING | Cannot update portfolio summary - Google Sheets not configured
+2025-08-10 10:00:04 | WARNING | Cannot update performance metrics - Google Sheets not configured
+2025-08-10 10:00:05 | INFO | Backtest plot saved to backtest_results.png
+2025-08-10 10:00:25 | INFO | Running 6-month backtest...
+2025-08-10 10:00:25 | INFO | DataFetcher initialized successfully
+2025-08-10 10:00:25 | INFO | RSI MA Crossover Strategy initialized with $100,000.00 capital
+2025-08-10 10:00:25 | INFO | Using RSI+MA Crossover strategy for backtesting
+2025-08-10 10:00:25 | WARNING | Google Sheets credentials or spreadsheet ID not configured
+2025-08-10 10:00:25 | WARNING | Google Sheets not configured - using mock logger for demo
+2025-08-10 10:00:25 | INFO | Fetching historical data for 6-month backtest...
+2025-08-10 10:00:25 | INFO | Processing RELIANCE.BSE...
+2025-08-10 10:00:25 | INFO | Loading RELIANCE.BSE daily data from cache
+2025-08-10 10:00:25 | SUCCESS | Successfully processed RELIANCE.BSE
+2025-08-10 10:00:25 | INFO | Processing TCS.BSE...
+2025-08-10 10:00:25 | INFO | Loading TCS.BSE daily data from cache
+2025-08-10 10:00:25 | SUCCESS | Successfully processed TCS.BSE
+2025-08-10 10:00:25 | INFO | Processing INFY.BSE...
+2025-08-10 10:00:25 | INFO | Loading INFY.BSE daily data from cache
+2025-08-10 10:00:25 | SUCCESS | Successfully processed INFY.BSE
+2025-08-10 10:00:25 | INFO | Successfully fetched data for 3 out of 3 stocks
+2025-08-10 10:00:25 | INFO | Backtest period: 2025-02-09 to 2025-08-08
+2025-08-10 10:00:25 | INFO | Filtered RELIANCE.BSE: 123 trading days
+2025-08-10 10:00:25 | INFO | Filtered TCS.BSE: 123 trading days
+2025-08-10 10:00:25 | INFO | Filtered INFY.BSE: 123 trading days
+2025-08-10 10:00:25 | INFO | Running strategy backtest...
+2025-08-10 10:00:25 | INFO | Starting backtesting...
+2025-08-10 10:00:25 | SUCCESS | Successfully calculated all technical indicators
+2025-08-10 10:00:25 | INFO | RELIANCE.BSE: Generated 2 buy signals and 36 sell signals out of 123 periods
+2025-08-10 10:00:25 | INFO | RELIANCE.BSE signal distribution: {0: 87, -1: 36}
+2025-08-10 10:00:25 | SUCCESS | Successfully calculated all technical indicators
+2025-08-10 10:00:25 | INFO | TCS.BSE: Generated 11 buy signals and 27 sell signals out of 123 periods
+2025-08-10 10:00:25 | INFO | TCS.BSE signal distribution: {0: 89, -1: 27, 1: 7}
+2025-08-10 10:00:25 | SUCCESS | Successfully calculated all technical indicators
+2025-08-10 10:00:25 | INFO | INFY.BSE: Generated 2 buy signals and 36 sell signals out of 123 periods
+2025-08-10 10:00:25 | INFO | INFY.BSE signal distribution: {0: 86, -1: 36, 1: 1}
+2025-08-10 10:00:25 | INFO | BUY: 7 shares of TCS.BSE at $3497.25
+2025-08-10 10:00:25 | INFO | SELL: 7 shares of TCS.BSE at $3562.80 (SELL_SIGNAL)
+2025-08-10 10:00:25 | INFO | BUY: 7 shares of TCS.BSE at $3321.60
+2025-08-10 10:00:25 | INFO | SELL: 7 shares of TCS.BSE at $3471.50 (TAKE_PROFIT)
+2025-08-10 10:00:25 | INFO | BUY: 7 shares of TCS.BSE at $3382.30
+2025-08-10 10:00:25 | INFO | SELL: 7 shares of TCS.BSE at $3265.40 (SELL_SIGNAL)
+2025-08-10 10:00:25 | INFO | BUY: 7 shares of TCS.BSE at $3252.80
+2025-08-10 10:00:25 | INFO | SELL: 7 shares of TCS.BSE at $3208.50 (STOP_LOSS)
+2025-08-10 10:00:25 | INFO | BUY: 8 shares of TCS.BSE at $3056.55
+2025-08-10 10:00:25 | INFO | SELL: 8 shares of TCS.BSE at $3003.10 (SELL_SIGNAL)
+2025-08-10 10:00:25 | INFO | BUY: 17 shares of INFY.BSE at $1459.75
+2025-08-10 10:00:25 | INFO | SELL: 17 shares of INFY.BSE at $1435.75 (STOP_LOSS)
+2025-08-10 10:00:25 | SUCCESS | Backtesting completed. Total return: -0.46%
+2025-08-10 10:00:25 | INFO | Logging backtest results to Google Sheets...
+2025-08-10 10:00:25 | WARNING | Cannot update portfolio summary - Google Sheets not configured
+2025-08-10 10:00:25 | WARNING | Cannot update performance metrics - Google Sheets not configured
+2025-08-10 10:00:26 | INFO | Backtest plot saved to backtest_results.png
