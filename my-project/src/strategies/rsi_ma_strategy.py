@@ -89,7 +89,7 @@ class RSIMACrossoverStrategy:
     
     def calculate_position_size(self, price: float, atr: float) -> int:
         """
-        Calculate position size based on risk management.
+        Enhanced position size calculation with volatility adjustment.
         
         Args:
             price: Current stock price
@@ -98,21 +98,37 @@ class RSIMACrossoverStrategy:
         Returns:
             Number of shares to trade
         """
-        # Risk amount per trade
-        risk_amount = self.current_capital * self.risk_per_trade
+        # Base risk amount per trade
+        base_risk = self.current_capital * self.risk_per_trade
         
-        # Use ATR for stop loss calculation (2 * ATR below entry price)
-        stop_loss_distance = max(2 * atr, price * 0.05)  # At least 5% stop loss
+        # Volatility adjustment - reduce risk for high volatility stocks
+        volatility_ratio = atr / price
+        if volatility_ratio > 0.03:  # High volatility (>3%)
+            adjusted_risk = base_risk * 0.7  # Reduce risk by 30%
+        elif volatility_ratio < 0.015:  # Low volatility (<1.5%)
+            adjusted_risk = base_risk * 1.2  # Increase risk by 20%
+        else:
+            adjusted_risk = base_risk
+        
+        # Dynamic stop loss based on volatility
+        stop_loss_distance = max(1.5 * atr, price * 0.03)  # Tighter stops, min 3%
         
         # Calculate position size
         if stop_loss_distance > 0:
-            position_size = int(risk_amount / stop_loss_distance)
+            position_size = int(adjusted_risk / stop_loss_distance)
         else:
-            position_size = int(risk_amount / (price * 0.05))  # Default 5% risk
+            position_size = int(adjusted_risk / (price * 0.03))
         
-        # Ensure we can afford the position
-        max_affordable = int(self.current_capital * 0.2 / price)  # Max 20% of capital per stock
-        position_size = min(position_size, max_affordable)
+        # Portfolio constraints
+        max_per_position = int(self.current_capital * 0.15 / price)  # Max 15% per stock
+        max_total_invested = int(self.current_capital * 0.8 / price)   # Max 80% invested
+        
+        # Consider current portfolio concentration
+        num_positions = len(self.positions)
+        if num_positions >= 3:  # Already have 3+ positions, be more conservative
+            max_per_position = int(max_per_position * 0.8)
+        
+        position_size = min(position_size, max_per_position, max_total_invested)
         
         return max(position_size, 1)  # At least 1 share
     
@@ -141,28 +157,53 @@ class RSIMACrossoverStrategy:
         signals_df['position'] = 0
         signals_df['signal_strength'] = 'NONE'
         
-        # Generate buy signals - more practical approach
-        # Either RSI oversold with bullish MA setup OR MA crossover with reasonable RSI
+        # Improved but practical buy signals
         ma_bullish = signals_df['sma_20'] > signals_df['sma_50']
         ma_crossover = (signals_df['sma_20'] > signals_df['sma_50']) & (signals_df['sma_20'].shift(1) <= signals_df['sma_50'].shift(1))
         rsi_oversold = signals_df['rsi'] < self.rsi_oversold
-        rsi_reasonable = signals_df['rsi'] < 50  # Less restrictive RSI condition
         
+        # Key quality filters - but not overly restrictive
+        volume_confirmation = signals_df['volume_ratio'] > 1.05  # Slight volume increase
+        macd_confirmation = signals_df['macd'] > signals_df['signal']  # MACD bullish
+        not_falling_knife = signals_df['close'].pct_change(3) > -0.10  # Not down >10% in 3 days
+        
+        # Simple momentum filter
+        price_above_short_ma = signals_df['close'] > signals_df['sma_20']
+        
+        # Enhanced buy condition - core RSI+MA with quality filters
         buy_condition = (
-            (rsi_oversold & ma_bullish) |  # RSI oversold in bullish trend
-            (ma_crossover & rsi_reasonable)  # MA crossover with reasonable RSI
+            (
+                # Original condition: RSI oversold with bullish MA
+                (rsi_oversold & ma_bullish & volume_confirmation) |
+                
+                # MA crossover condition with confirmations
+                (ma_crossover & macd_confirmation & not_falling_knife)
+            ) &
+            
+            # Additional quality filter - avoid extreme situations
+            (signals_df['atr'] / signals_df['close'] < 0.08)  # Avoid extremely volatile stocks
         )
         
-        # Generate sell signals - more balanced approach
+        # Improved sell signals - focus on profit protection
         ma_bearish = signals_df['sma_20'] < signals_df['sma_50']
         ma_crossover_down = (signals_df['sma_20'] < signals_df['sma_50']) & (signals_df['sma_20'].shift(1) >= signals_df['sma_50'].shift(1))
         rsi_overbought = signals_df['rsi'] > self.rsi_overbought
-        rsi_high = signals_df['rsi'] > 65  # Less restrictive sell condition
+        rsi_very_high = signals_df['rsi'] > 75  # Very overbought
+        
+        # Momentum and technical deterioration
+        macd_turning_down = (signals_df['macd'] < signals_df['signal']) & (signals_df['macd'].shift(1) >= signals_df['signal'].shift(1))
+        price_decline = signals_df['close'].pct_change(2) < -0.04  # 2-day decline > 4%
+        volume_selling = signals_df['volume_ratio'] > 1.5  # Higher volume selling
+        
+        # Price structure breakdown
+        below_short_ma = signals_df['close'] < signals_df['sma_20']
         
         sell_condition = (
-            (rsi_overbought) |  # RSI overbought
-            (ma_crossover_down) |  # MA crossover down
-            (rsi_high & ma_bearish)  # High RSI in bearish trend
+            rsi_overbought |  # Basic RSI overbought
+            ma_crossover_down |  # MA bearish crossover
+            (rsi_very_high) |  # Very high RSI - take profits
+            (macd_turning_down & price_decline) |  # MACD turning down with price weakness
+            (below_short_ma & volume_selling)  # Price breaks support with volume
         )
         
         # Set signals
@@ -315,10 +356,25 @@ class RSIMACrossoverStrategy:
             quantity = self.calculate_position_size(price, atr)
             cost = quantity * price
             
-            if cost <= self.current_capital * 0.95:  # Keep 5% cash buffer
-                # Calculate stop loss and take profit
-                stop_loss = price - (2 * atr)
-                take_profit = price + (3 * atr)  # 1.5:1 risk-reward ratio
+            if cost <= self.current_capital * 0.9:  # Keep 10% cash buffer
+                # Enhanced stop loss and take profit calculation
+                volatility_ratio = atr / price
+                
+                # Improved dynamic stop loss and take profit
+                if volatility_ratio > 0.035:  # Very high volatility
+                    stop_loss = price - (1.0 * atr)  # Tight stop
+                    take_profit = price + (2.0 * atr)  # Conservative target
+                elif volatility_ratio > 0.025:  # High volatility
+                    stop_loss = price - (1.3 * atr)  # Moderate stop
+                    take_profit = price + (2.6 * atr)  # Moderate target
+                else:  # Normal/low volatility
+                    stop_loss = price - (1.6 * atr)  # Wider stop
+                    take_profit = price + (3.2 * atr)  # Aggressive target
+                
+                # Ensure minimum risk-reward ratio of 1.8:1
+                risk = price - stop_loss
+                if (take_profit - price) < (risk * 1.8):
+                    take_profit = price + (risk * 2.0)  # Better risk-reward
                 
                 # Create trade
                 trade = Trade(symbol, 'BUY', quantity, price, date, stop_loss, take_profit)
@@ -364,21 +420,41 @@ class RSIMACrossoverStrategy:
             position = self.positions[symbol]
             should_sell = False
             exit_reason = None
+            entry_price = position['entry_price']
+            current_profit = (price - entry_price) / entry_price
             
-            # Check sell signal
+            # Trailing stop logic - update stop loss if in profit
+            if current_profit > 0.05:  # If up 5% or more
+                trailing_stop = price - (1.5 * atr)  # Trail by 1.5 ATR
+                if trailing_stop > position['stop_loss']:
+                    position['stop_loss'] = trailing_stop
+                    logger.debug(f"Updated trailing stop for {symbol} to ${trailing_stop:.2f}")
+            
+            # Enhanced exit conditions
+            # 1. Sell signal
             if signal == -1:
                 should_sell = True
                 exit_reason = "SELL_SIGNAL"
             
-            # Check stop loss
+            # 2. Stop loss (including trailing stop)
             elif price <= position['stop_loss']:
                 should_sell = True
                 exit_reason = "STOP_LOSS"
             
-            # Check take profit
+            # 3. Take profit
             elif price >= position['take_profit']:
                 should_sell = True
                 exit_reason = "TAKE_PROFIT"
+            
+            # 4. Profit protection - sell if down 8% from recent high
+            elif hasattr(position, 'highest_price'):
+                if price < position['highest_price'] * 0.92:  # Down 8% from high
+                    should_sell = True
+                    exit_reason = "PROFIT_PROTECTION"
+            
+            # Update highest price for profit protection
+            if not hasattr(position, 'highest_price') or price > position.get('highest_price', entry_price):
+                position['highest_price'] = price
             
             if should_sell:
                 quantity = position['quantity']
