@@ -370,3 +370,43 @@
 2025-08-10 12:58:18 | SUCCESS | src.data.technical_indicators:calculate_all_indicators:298 | Successfully calculated all technical indicators
 2025-08-10 12:58:19 | INFO | src.automation.trading_engine:scan_and_analyze:307 | Generated SELL signal for INFY.BSE (Strength: STRONG)
 2025-08-10 12:58:19 | SUCCESS | src.automation.trading_engine:scan_and_analyze:322 | Market scan completed. Scanned 3 symbols, generated 3 signals
+2025-08-10 09:19:42 | SUCCESS | src.automation.trading_engine:_setup_logging:79 | Logging system configured
+2025-08-10 09:19:42 | INFO | src.automation.trading_engine:_initialize_components:85 | Initializing data fetcher...
+2025-08-10 09:19:42 | INFO | src.data.data_fetcher:__init__:42 | DataFetcher initialized successfully
+2025-08-10 09:19:42 | INFO | src.automation.trading_engine:_initialize_components:89 | Initializing RSI+MA Crossover trading strategy...
+2025-08-10 09:19:42 | INFO | src.strategies.rsi_ma_strategy:__init__:88 | RSI MA Crossover Strategy initialized with $100,000.00 capital
+2025-08-10 09:19:42 | INFO | src.automation.trading_engine:_initialize_components:96 | Initializing ML model...
+2025-08-10 09:19:42 | INFO | src.ml.predictive_model:__init__:238 | Initialized random_forest model
+2025-08-10 09:19:42 | INFO | src.automation.trading_engine:_initialize_components:100 | Initializing Google Sheets logger...
+2025-08-10 09:19:42 | WARNING | src.utils.sheets_logger:_initialize_connection:95 | Google Sheets credentials or spreadsheet ID not configured
+2025-08-10 09:19:42 | WARNING | src.automation.trading_engine:_initialize_components:106 | Google Sheets initialization failed: Failed to connect to Google Sheets
+2025-08-10 09:19:42 | INFO | src.automation.trading_engine:_initialize_components:107 | Using mock Google Sheets logger for demonstration...
+2025-08-10 09:19:42 | INFO | src.utils.mock_sheets_logger:__init__:35 | Mock Google Sheets logger initialized. Data will be saved to: mock_sheets_data
+2025-08-10 09:19:42 | SUCCESS | src.automation.trading_engine:_initialize_components:111 | Mock Google Sheets logger initialized successfully
+2025-08-10 09:19:42 | INFO | src.automation.trading_engine:_initialize_components:117 | Initializing Telegram bot...
+2025-08-10 09:19:42 | WARNING | src.utils.telegram_alerts:__init__:45 | Telegram bot disabled - token or chat_id not configured
+2025-08-10 09:19:42 | SUCCESS | src.automation.trading_engine:_initialize_components:124 | All components initialized successfully
+2025-08-10 09:19:42 | INFO | src.automation.trading_engine:__init__:62 | Trading Engine initialized successfully
+2025-08-10 09:19:42 | INFO | src.automation.trading_engine:run_single_scan:643 | Running single market scan...
+2025-08-10 09:19:42 | INFO | src.automation.trading_engine:scan_and_analyze:242 | Starting market scan and analysis...
+2025-08-10 09:19:42 | INFO | src.automation.trading_engine:scan_and_analyze:256 | Fetching market data...
+2025-08-10 09:19:42 | INFO | src.data.data_fetcher:get_multiple_stocks_data:237 | Processing RELIANCE.BSE...
+2025-08-10 09:19:42 | INFO | src.data.data_fetcher:_load_from_cache:74 | Loading RELIANCE.BSE daily data from cache
+2025-08-10 09:19:42 | SUCCESS | src.data.data_fetcher:get_multiple_stocks_data:243 | Successfully processed RELIANCE.BSE
+2025-08-10 09:19:42 | INFO | src.data.data_fetcher:get_multiple_stocks_data:237 | Processing TCS.BSE...
+2025-08-10 09:19:42 | INFO | src.data.data_fetcher:_load_from_cache:74 | Loading TCS.BSE daily data from cache
+2025-08-10 09:19:42 | SUCCESS | src.data.data_fetcher:get_multiple_stocks_data:243 | Successfully processed TCS.BSE
+2025-08-10 09:19:42 | INFO | src.data.data_fetcher:get_multiple_stocks_data:237 | Processing INFY.BSE...
+2025-08-10 09:19:42 | INFO | src.data.data_fetcher:_load_from_cache:74 | Loading INFY.BSE daily data from cache
+2025-08-10 09:19:42 | SUCCESS | src.data.data_fetcher:get_multiple_stocks_data:243 | Successfully processed INFY.BSE
+2025-08-10 09:19:42 | INFO | src.data.data_fetcher:get_multiple_stocks_data:251 | Successfully fetched data for 3 out of 3 stocks
+2025-08-10 09:19:42 | SUCCESS | src.data.technical_indicators:calculate_all_indicators:298 | Successfully calculated all technical indicators
+2025-08-10 09:19:42 | INFO | src.utils.mock_sheets_logger:log_signal:95 | Mock: Logged signal for RELIANCE.BSE
+2025-08-10 09:19:42 | INFO | src.automation.trading_engine:scan_and_analyze:307 | Generated SELL signal for RELIANCE.BSE (Strength: STRONG)
+2025-08-10 09:19:42 | SUCCESS | src.data.technical_indicators:calculate_all_indicators:298 | Successfully calculated all technical indicators
+2025-08-10 09:19:42 | INFO | src.utils.mock_sheets_logger:log_signal:95 | Mock: Logged signal for TCS.BSE
+2025-08-10 09:19:42 | INFO | src.automation.trading_engine:scan_and_analyze:307 | Generated SELL signal for TCS.BSE (Strength: MODERATE)
+2025-08-10 09:19:42 | SUCCESS | src.data.technical_indicators:calculate_all_indicators:298 | Successfully calculated all technical indicators
+2025-08-10 09:19:42 | INFO | src.utils.mock_sheets_logger:log_signal:95 | Mock: Logged signal for INFY.BSE
+2025-08-10 09:19:42 | INFO | src.automation.trading_engine:scan_and_analyze:307 | Generated SELL signal for INFY.BSE (Strength: STRONG)
+2025-08-10 09:19:42 | SUCCESS | src.automation.trading_engine:scan_and_analyze:322 | Market scan completed. Scanned 3 symbols, generated 3 signals

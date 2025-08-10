@@ -20,11 +20,19 @@ try:
     from src.strategies.rsi_ma_strategy import RSIMACrossoverStrategy
     from src.ml.predictive_model import StockPredictiveModel
     from src.config import Config
-    from loguru import logger
     CORE_AVAILABLE = True
 except ImportError as e:
     print(f"Warning: Core modules not available: {e}")
     CORE_AVAILABLE = False
+
+# Import logger separately to handle gracefully
+try:
+    from loguru import logger
+    LOGGER_AVAILABLE = True
+except ImportError:
+    LOGGER_AVAILABLE = False
+    import logging
+    logger = logging.getLogger(__name__)
 
 # Try to import Google Sheets logger, fall back to mock
 try:
@@ -48,12 +56,20 @@ except ImportError:
 
 def setup_logging():
     """Setup logging for the main script."""
-    logger.add(
-        "logs/main.log",
-        format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {message}",
-        level="INFO",
-        rotation="10 MB"
-    )
+    if LOGGER_AVAILABLE:
+        logger.add(
+            "logs/main.log",
+            format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {message}",
+            level="INFO",
+            rotation="10 MB"
+        )
+    else:
+        # Setup basic logging
+        logging.basicConfig(
+            filename="logs/main.log",
+            level=logging.INFO,
+            format="%(asctime)s | %(levelname)s | %(message)s"
+        )
 
 
 def run_engine():
@@ -75,13 +91,12 @@ def run_backtest():
     # Initialize components
     try:
         data_fetcher = DataFetcher()
-        # Use simple improved strategy for better performance (works with existing indicators)
-        from src.strategies.simple_improved_strategy import SimpleImprovedStrategy
-        strategy = SimpleImprovedStrategy(
+        # Use RSI+MA crossover strategy for backtesting
+        strategy = RSIMACrossoverStrategy(
             initial_capital=Config.INITIAL_CAPITAL,
-            risk_per_trade=Config.RISK_PER_TRADE * 0.75  # Reduced risk (1.5% instead of 2%)
+            risk_per_trade=Config.RISK_PER_TRADE
         )
-        logger.info("Using SIMPLE IMPROVED RSI+MA strategy for backtesting")
+        logger.info("Using RSI+MA Crossover strategy for backtesting")
     except Exception as e:
         print(f"❌ Failed to initialize components: {e}")
         print("Please check your configuration and dependencies.")

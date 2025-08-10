@@ -1,0 +1,38 @@
+[
+  {
+    "signal": "SELL",
+    "strength": "STRONG",
+    "rsi": 34.11547587636302,
+    "sma_20": 1421.1575,
+    "sma_50": 1450.874,
+    "price": 1367.95,
+    "volume_ratio": 1.3883087145845119,
+    "timestamp": "2025-08-08T00:00:00",
+    "symbol": "RELIANCE.BSE",
+    "logged_at": "2025-08-10T09:19:42.496928"
+  },
+  {
+    "signal": "SELL",
+    "strength": "MODERATE",
+    "rsi": 31.80615536867299,
+    "sma_20": 3118.4350050000003,
+    "sma_50": 3300.470002,
+    "price": 3034.5,
+    "volume_ratio": 0.6106242218402055,
+    "timestamp": "2025-08-08T00:00:00",
+    "symbol": "TCS.BSE",
+    "logged_at": "2025-08-10T09:19:42.507389"
+  },
+  {
+    "signal": "SELL",
+    "strength": "STRONG",
+    "rsi": 10.59975520188587,
+    "sma_20": 1524.8349999999998,
+    "sma_50": 1572.063,
+    "price": 1423.65,
+    "volume_ratio": 0.820213032474538,
+    "timestamp": "2025-08-08T00:00:00",
+    "symbol": "INFY.BSE",
+    "logged_at": "2025-08-10T09:19:42.517076"
+  }
+]
